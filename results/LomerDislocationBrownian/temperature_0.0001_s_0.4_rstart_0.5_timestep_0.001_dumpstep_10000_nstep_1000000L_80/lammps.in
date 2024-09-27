@@ -1,0 +1,28 @@
+# ---------- Initialize simulation ---------------------
+units lj
+atom_style atomic
+dimension  3
+boundary   p p p
+read_data C:/Users/noae1/lammps/results/dislocation1_brownian_rcut_0.932/output/temperature_0.0001_s_1_rstart_0.5_timestep_1e-05_dumpstep_100_nstep_1000/mid_input/loc_test.data
+mass * 1.0
+group immobile type 2
+group mobile type 1
+
+pair_style table linear 10000
+pair_coeff * * potential.table power_law 0.932
+
+velocity mobile create 0.0001 87287 dist gaussian
+velocity immobile set 0.0 0.0 0.0
+compute displ all displace/atom
+fix 1 all nve
+fix 2 mobile brownian 0.0001 3213 gamma_t 1.0
+fix 3 mobile recenter INIT INIT INIT
+fix 4 immobile setforce 0.0 0.0 0.0
+#--------- Dump file ------------------
+thermo_style custom step pe ke temp press
+thermo 10000
+dump 1 all custom 10000 dump.* id type x y z    
+
+# --------- Run -------------
+timestep 0.001
+run 1000000
